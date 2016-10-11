@@ -11,7 +11,7 @@ class Product(Base):
 
     product_id = Column(Integer, primary_key=True)
     product_name = Column(String(200))
-    product_price = Column(Integer)
+    product_price = Column(Float)
     product_qty = Column (Integer)
 
     def __init__(self, product_name=None, product_price=None, product_qty = None):

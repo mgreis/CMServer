@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 server = 'localhost:3306'
 db = 'sqlalchemy'
 login = 'root'
-password = '12345678'
+password = ''
 
 
 engine_str = 'mysql+pymysql://{0}:{1}@{2}/{3}'.format(login,password,server,db)
