@@ -7,6 +7,8 @@ from models import Product
 
 
 application = app = Flask(__name__)
+
+
 #app.secret_key = os.urandom(64)
 db_instance = database.init_db()
 
@@ -99,12 +101,11 @@ def product(product_id):
         return get_products()
 
     if request.method == 'PUT':
-        db_instance.query(Product).filter(
-            Product.product_id == product_id).update(
-            {
-                "product_name" : request.form['product_name'],
-                "product_price" : request.form['product_price'],
-                "product_qty" : request.form['product_qty']})
+        db_instance.query(Product).filter(Product.product_id == product_id).update(
+        {
+            "product_name" : request.form['product_name'],
+            "product_price" : request.form['product_price'],
+            "product_qty" : request.form['product_qty']})
         db_instance.commit()
         return get_product(product_id)
 
