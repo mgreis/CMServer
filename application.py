@@ -26,6 +26,15 @@ def get_products():
     return Response(string, mimetype='application/json',
                     headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
 
+def get_product(product_id):
+    product = []
+    for instance in db_instance.query(Product).filter(Product.product_id==product_id):
+        product.append(instance.__repr__())
+    string = "[ " + " , ".join(product) + " ]"
+    print(string)
+
+    return Response(string, mimetype='application/json',
+                    headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
 
 
 @app.route('/products', methods=['GET', 'POST', 'DELETE', 'PUT'])
@@ -47,14 +56,49 @@ def products():
         return get_products()
 
     if request.method == 'DELETE':
-        product_id = request.form['product_id']
+       ''' product_id = request.form['product_id']
         db_instance.query(Product).filter(Product.product_id == product_id)
+        db_instance.commit()'''
+       return get_products()
+
+    if request.method == 'PUT':
+        '''product_id = request.form['product_id']
+        db_instance.query(Product).filter(
+            Product.product_id == product_id).update(
+            {
+                "product_name" : request.form['product_name'],
+                "product_price" : request.form['product_price'],
+                "product_qty" : request.form['product_qty']})
+        db_instance.commit()'''
+        return get_products()
+
+
+@app.route('/products/<path:product_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def product(product_id):
+    error = None
+    if request.method == 'GET':
+
+        return get_product(product_id)
+
+    if request.method == 'POST':
+        '''product = Product(
+            product_name=request.form['product_name'],
+            product_price=request.form['product_price'],
+            product_qty=request.form['product_qty'])
+
+        db_instance.query(Product).user_dealerships.append(product)
+
+        db_instance.commit()'''
+
+        return get_product(product_id)
+
+    if request.method == 'DELETE':
+        db_instance.query(Product).filter(Product.product_id == product_id).delete()
         db_instance.commit()
 
         return get_products()
 
     if request.method == 'PUT':
-        product_id = request.form['product_id']
         db_instance.query(Product).filter(
             Product.product_id == product_id).update(
             {
@@ -62,10 +106,7 @@ def products():
                 "product_price" : request.form['product_price'],
                 "product_qty" : request.form['product_qty']})
         db_instance.commit()
-        return get_products()
-
-
-
+        return get_product(product_id)
 
 
 
