@@ -1,7 +1,6 @@
 from flask import Flask, request, Response
 
-from sqlalchemy import __version__
-
+from sqlalchemy import __version__, and_
 import database
 from models import Product
 
@@ -17,9 +16,9 @@ print("SQLAlchemy version: " + __version__)
 
 
 
-def get_products():
+def get_products(user_id):
     all_products = []
-    for instance in db_instance.query(Product):
+    for instance in db_instance.query(Product).filter(Product.user_id == user_id):
         all_products.append(instance.__repr__())
 
     string = "[ " + " , ".join(all_products) + " ]"
@@ -28,9 +27,9 @@ def get_products():
     return Response(string, mimetype='application/json',
                     headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
 
-def get_product(product_id):
+def get_product(user_id, product_id):
     product = []
-    for instance in db_instance.query(Product).filter(Product.product_id==product_id):
+    for instance in db_instance.query(Product).filter(and_(Product.user_id == user_id)(Product.product_id==product_id)):
         product.append(instance.__repr__())
     string = "[ " + " , ".join(product) + " ]"
     print(string)
@@ -39,23 +38,24 @@ def get_product(product_id):
                     headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
 
 
-@app.route('/products', methods=['GET', 'POST', 'DELETE', 'PUT'])
-def products():
+@app.route('/products/<path:user_id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def products(user_id):
     error = None
     if request.method == 'GET':
-        return get_products()
+        return get_products(user_id)
 
     if request.method == 'POST':
         product = Product(
             product_name=request.form['product_name'],
             product_price=request.form['product_price'],
-            product_qty=request.form['product_qty'])
+            product_qty=request.form['product_qty'],
+            user_id=request.form['user_id'])
 
         db_instance.query(Product).user_dealerships.append(product)
 
         db_instance.commit()
 
-        return get_products()
+        return get_products(user_id)
 
     if request.method == 'DELETE':
        ''' product_id = request.form['product_id']
@@ -75,12 +75,12 @@ def products():
         return get_products()
 
 
-@app.route('/products/<path:product_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def product(product_id):
+@app.route('/products/<path:user_id>/<path:product_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def product(user_id,product_id):
     error = None
     if request.method == 'GET':
 
-        return get_product(product_id)
+        return get_product(user_id,product_id)
 
     if request.method == 'POST':
         '''product = Product(
@@ -92,22 +92,22 @@ def product(product_id):
 
         db_instance.commit()'''
 
-        return get_product(product_id)
+        return get_product(user_id,product_id)
 
     if request.method == 'DELETE':
-        db_instance.query(Product).filter(Product.product_id == product_id).delete()
+        db_instance.query(Product).filter(and_(Product.user_id == user_id), (Product.product_id == product_id)).delete()
         db_instance.commit()
 
         return get_products()
 
     if request.method == 'PUT':
-        db_instance.query(Product).filter(Product.product_id == product_id).update(
+        db_instance.query(Product).filter(and_(Product.product_id == product_id), (Product.user_id == user_id)).update(
         {
             "product_name" : request.form['product_name'],
             "product_price" : request.form['product_price'],
             "product_qty" : request.form['product_qty']})
         db_instance.commit()
-        return get_product(product_id)
+        return get_product(user_id, product_id)
 
 
 
