@@ -1,4 +1,4 @@
-"""from sqlalchemy import Column, Integer, String, Float"""
+#author = mgreis@student.dei.uc.pt
 from sqlalchemy.orm import relationship
 from sqlalchemy import *
 from database import Base
