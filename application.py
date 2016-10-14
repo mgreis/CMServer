@@ -85,7 +85,7 @@ def products(user_id):
             product_name=request.form['product_name'],
             product_price=request.form['product_price'],
             product_qty=request.form['product_qty'],
-            user_id=request.form['user_id'])
+            user_id= user_id)
 
         db_instance.query(Product).append(product)
 
