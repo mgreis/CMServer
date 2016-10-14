@@ -24,6 +24,7 @@ print("SQLAlchemy version: " + __version__)
 
 
 def get_products(user_id):
+    print (user_id)
     all_products = []
     for instance in db_instance.query(Product).filter(Product.user_id == user_id):
         all_products.append(instance.__repr__())
@@ -59,14 +60,16 @@ def get_user(user_email,user_password):
 @app.route('/users', methods=['GET','POST'])
 def users():
     if request.method == 'GET':
-        user_email = request.form['user_email']
-        user_password = request.form['user_password']
+        user_email = request.args.get('user_email')
+        user_password = request.args.get('user_password')
         return get_user(user_email, user_password)
     if request.method == 'POST':
+        print (request.form['user_email'])
+        print (request.form['user_password'])
         user = User(
             user_email = request.form['user_email'],
             user_password = request.form['user_password'])
-        db_instance.query(User).append(user)
+        db_instance.add(user)
         db_instance.commit()
         return get_user(request.form['user_email'],request.form['user_password'])
 

@@ -4,7 +4,7 @@ from sqlalchemy import *
 from database import Base
 
 class User (Base):
-    __tablename_ = 'user'
+    __tablename__ = 'user'
 
     user_id = Column(Integer, primary_key=true)
     user_email = Column(String(200))
