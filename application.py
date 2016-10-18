@@ -27,6 +27,7 @@ def get_products(user_id):
     print (user_id)
     all_products = []
     for instance in db_instance.query(Product).filter(Product.user_id == user_id):
+        print(instance.__repr__())
         all_products.append(instance.__repr__())
 
     string = "[ " + " , ".join(all_products) + " ]"
@@ -87,7 +88,7 @@ def products(user_id):
             product_qty=request.form['product_qty'],
             user_id= user_id)
 
-        db_instance.query(Product).append(product)
+        db_instance.add(product)
 
         db_instance.commit()
 
@@ -134,7 +135,7 @@ def product(user_id,product_id):
         db_instance.query(Product).filter(and_(Product.user_id == user_id), (Product.product_id == product_id)).delete()
         db_instance.commit()
 
-        return get_products()
+        return get_products(user_id)
 
     if request.method == 'PUT':
         db_instance.query(Product).filter(and_(Product.product_id == product_id), (Product.user_id == user_id)).update(
@@ -143,7 +144,7 @@ def product(user_id,product_id):
             "product_price" : request.form['product_price'],
             "product_qty" : request.form['product_qty']})
         db_instance.commit()
-        return get_product(user_id, product_id)
+        return get_products(user_id)
 
 
 
