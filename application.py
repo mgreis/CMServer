@@ -24,14 +24,14 @@ print("SQLAlchemy version: " + __version__)
 
 
 def get_products(user_id):
-    print (user_id)
+    #print (user_id)
     all_products = []
     for instance in db_instance.query(Product).filter(Product.user_id == user_id):
-        print(instance.__repr__())
+        #print(instance.__repr__())
         all_products.append(instance.__repr__())
 
     string = "[ " + " , ".join(all_products) + " ]"
-    print(string)
+    #print(string)
 
     return Response(string, mimetype='application/json',
                     headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
@@ -41,7 +41,7 @@ def get_product(user_id, product_id):
     for instance in db_instance.query(Product).filter(and_(Product.user_id == user_id)(Product.product_id == product_id)):
         product.append(instance.__repr__())
     string = "[ " + " , ".join(product) + " ]"
-    print(string)
+    #print(string)
 
     return Response(string, mimetype='application/json',
                     headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
@@ -52,7 +52,7 @@ def get_user(user_email,user_password):
     for instance in db_instance.query(User).filter(and_(User.user_email == user_email), (User.user_password == user_password)):
         user.append(instance.__repr__())
     string = "[ " + " , ".join(user) + " ]"
-    print(string)
+    #print(string)
 
     return Response(string, mimetype='application/json',
                     headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
@@ -65,8 +65,8 @@ def users():
         user_password = request.args.get('user_password')
         return get_user(user_email, user_password)
     if request.method == 'POST':
-        print (request.form['user_email'])
-        print (request.form['user_password'])
+        #print (request.form['user_email'])
+        #print (request.form['user_password'])
         user = User(
             user_email = request.form['user_email'],
             user_password = request.form['user_password'])
