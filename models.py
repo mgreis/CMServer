@@ -7,7 +7,7 @@ class User (Base):
     __tablename__ = 'user'
 
     user_id = Column(Integer, primary_key=true)
-    user_email = Column(String(200))
+    user_email = Column(String(200), unique=true)
     user_password = Column(String(200))
     user_products = relationship('Product')
 
