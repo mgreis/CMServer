@@ -13,8 +13,7 @@ db_instance = database.init_db()
 print("SQLAlchemy version: " + __version__)
 
 
-
-
+# gets products from the database that belong to a certain user. If no products found it returns 404 (Not Found)
 def get_products(user_id):
     all_products = []
     exists = False
@@ -29,6 +28,7 @@ def get_products(user_id):
         return abort(404)
 
 
+# Looks for a user in the database, if the user does not exist, it returns a 404 (Not Found)
 def get_user(user_email, user_password):
     user = []
     exists = False
@@ -41,7 +41,8 @@ def get_user(user_email, user_password):
         return Response(string, mimetype='application/json',
                         headers={'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*'})
     else:
-        return abort(403)
+        return abort(404)
+
 
 
 @app.route('/users', methods=['GET', 'POST'])
@@ -51,8 +52,6 @@ def users():
         user_password = request.args.get('user_password')
         return get_user(user_email, user_password)
     if request.method == 'POST':
-        # print (request.form['user_email'])
-        # print (request.form['user_password'])
         try:
             user = User(
                 user_email=request.form['user_email'],
@@ -64,6 +63,12 @@ def users():
 
         else:
             return get_user(request.form['user_email'], request.form['user_password'])
+
+# Handles products from a certain user
+# GET checks if products from that user exist in the database, if not returns 404
+# POST creates a new product in the database
+# DELETE returns a 403
+# PUT returns a 403
 
 
 @app.route('/products/<path:user_id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
@@ -82,7 +87,7 @@ def products(user_id):
             db_instance.add(new_product)
             db_instance.commit()
         except exc.SQLAlchemyError:
-            return(abort(403))
+            return abort(403)
 
         else:
             return '', 200
@@ -94,9 +99,14 @@ def products(user_id):
         return abort(403)
 
 
+# Handles a product from a certain user with a certain product_id
+# GET returns a 403
+# POST returns a 403
+# DELETE tries to delete a product, if it does not exist it also returns a 200 since the operation is idempotent
+# PUT if product exists it updates it, if not it returns a 403
+
 @app.route('/products/<path:user_id>/<path:product_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def product(user_id, product_id):
-
     if request.method == 'GET':
         return abort(403)
 
@@ -104,21 +114,29 @@ def product(user_id, product_id):
         return abort(403)
 
     if request.method == 'DELETE':
-        db_instance.query(Product).filter(and_(Product.user_id == user_id), (Product.product_id == product_id)).delete()
-        db_instance.commit()
+        try:
+            db_instance.query(Product).filter(and_(Product.user_id == user_id), (Product.product_id == product_id)).delete()
+            db_instance.commit()
+        except exc.SQLAlchemyError:
+            return '', 200
 
-        return '', 200
+        else:
+            return '', 200
 
     if request.method == 'PUT':
-        db_instance.query(Product).filter(and_(Product.product_id == product_id), (Product.user_id == user_id)).update(
-            {
-                "product_name": request.form['product_name'],
-                "product_price": request.form['product_price'],
-                "product_qty": request.form['product_qty']})
-        db_instance.commit()
-        return '', 200
+        try:
+            db_instance.query(Product).filter(and_(Product.product_id == product_id), (Product.user_id == user_id)).update(
+                {
+                    "product_name": request.form['product_name'],
+                    "product_price": request.form['product_price'],
+                    "product_qty": request.form['product_qty']})
+            db_instance.commit()
+        except exc.SQLAlchemyError:
+            return abort(403)
+        else:
+            return '', 200
 
 
 if __name__ == "__main__":
     application.debug = True
-    application.run(host="0.0.0.0", port=80)
+    application.run(host="0.0.0.0")
