@@ -49,7 +49,7 @@ def get_user(user_email, user_password):
 # POST creates a new product in the database if it fails the user already exists and returns a 403
 
 
-@app.route('/users', methods=['GET', 'POST'])
+@app.route('/users', methods=['GET', 'POST' , 'DELETE', 'PUT'])
 def users():
     if request.method == 'GET':
         user_email = request.args.get('user_email')
@@ -66,13 +66,18 @@ def users():
             return abort(403)
 
         else:
-            return '', 204
+            return '', 201
+    if request.method == 'DELETE':
+        return abort(405)
+
+    if request.method == 'PUT':
+        return abort(405)
 
 # Handles products from a certain user
 # GET checks if products from that user exist in the database, if not returns 404
 # POST creates a new product in the database
-# DELETE returns a 403
-# PUT returns a 403
+# DELETE returns a 405 Not Supported
+# PUT returns a 405 Not Supported
 
 
 @app.route('/products/<path:user_id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
@@ -94,28 +99,28 @@ def products(user_id):
             return abort(403)
 
         else:
-            return '', 204
+            return '', 201
 
     if request.method == 'DELETE':
-        return abort(403)
+        return abort(405)
 
     if request.method == 'PUT':
-        return abort(403)
+        return abort(405)
 
 
 # Handles a product from a certain user with a certain product_id
-# GET returns a 403
-# POST returns a 403
+# GET returns a 405 Not supported
+# POST returns a 405 Not supported
 # DELETE tries to delete a product, if it does not exist 404
 # PUT if product exists it updates it, if not it returns a 404
 
 @app.route('/products/<path:user_id>/<path:product_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def product(user_id, product_id):
     if request.method == 'GET':
-        return abort(403)
+        return abort(405)
 
     if request.method == 'POST':
-        return abort(403)
+        return abort(405)
 
     if request.method == 'DELETE':
         try:
