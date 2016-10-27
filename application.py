@@ -44,6 +44,10 @@ def get_user(user_email, user_password):
         return abort(404)
 
 
+# Handles users
+# GET checks if user exists in the database, if not returns 404
+# POST creates a new product in the database if it fails the user already exists and returns a 403
+
 
 @app.route('/users', methods=['GET', 'POST'])
 def users():
@@ -62,7 +66,7 @@ def users():
             return abort(403)
 
         else:
-            return get_user(request.form['user_email'], request.form['user_password'])
+            return '', 204
 
 # Handles products from a certain user
 # GET checks if products from that user exist in the database, if not returns 404
@@ -90,7 +94,7 @@ def products(user_id):
             return abort(403)
 
         else:
-            return '', 200
+            return '', 204
 
     if request.method == 'DELETE':
         return abort(403)
@@ -102,8 +106,8 @@ def products(user_id):
 # Handles a product from a certain user with a certain product_id
 # GET returns a 403
 # POST returns a 403
-# DELETE tries to delete a product, if it does not exist it also returns a 200 since the operation is idempotent
-# PUT if product exists it updates it, if not it returns a 403
+# DELETE tries to delete a product, if it does not exist 404
+# PUT if product exists it updates it, if not it returns a 404
 
 @app.route('/products/<path:user_id>/<path:product_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def product(user_id, product_id):
@@ -118,10 +122,10 @@ def product(user_id, product_id):
             db_instance.query(Product).filter(and_(Product.user_id == user_id), (Product.product_id == product_id)).delete()
             db_instance.commit()
         except exc.SQLAlchemyError:
-            return '', 200
+            return '', 404
 
         else:
-            return '', 200
+            return '', 204
 
     if request.method == 'PUT':
         try:
@@ -132,9 +136,9 @@ def product(user_id, product_id):
                     "product_qty": request.form['product_qty']})
             db_instance.commit()
         except exc.SQLAlchemyError:
-            return abort(403)
+            return abort(404)
         else:
-            return '', 200
+            return '', 204
 
 
 if __name__ == "__main__":
